@@ -14,12 +14,4 @@ class ChannelConfig
     }.keys
   end
 
-  def format_message(channel, msg, emoji)
-    channel = @config[channel] || {}
-    if !emoji.empty? && channel.fetch('emoji', true)
-      "#{msg} #{emoji}"
-    else
-      msg
-    end
-  end
 end

@@ -20,16 +20,24 @@ class Update
     type == 'comment-added'
   end
 
+  def new_patchset?
+    json['patchSet'] && json['patchSet']['number'] == "1"
+  end
+
+  def patchset_created?
+    type == 'patchset-created'
+  end
+
   def merged?
     type == 'change-merged'
   end
 
   def human?
-    !['hudson', 'firework'].include?(json['author']['username'])
+    !['hudson', 'firework', 'jenkins', 'sputnik'].include?(json['author']['username'])
   end
 
   def jenkins?
-    comment_added? && json['author']['username'] == 'hudson'
+    comment_added? && (json['author']['username'] == 'hudson' || json['author']['username'] == 'jenkins')
   end
 
   def build_successful?
@@ -78,6 +86,18 @@ class Update
     sanitized
   end
 
+  def branch
+    json['change']['branch'] if json['change']
+  end
+
+  def url
+    json['change']['url'] if json['change']
+  end
+
+  def change_number
+    json['change']['number'] if json['change']
+  end
+
   def subject
     json['change']['subject']
   end
@@ -87,11 +107,19 @@ class Update
   end
 
   def author
-    json['author']['username']
+    if json['uploader']
+      json['uploader']['name']
+    elsif json['author']
+      json['author']['username']
+    end
   end
 
   def author_slack_name
     slack_name_for author
+  end
+
+  def owner_slack_name
+    slack_name_for owner
   end
 
   def approvals
@@ -137,5 +165,17 @@ class Update
   def has_approval?(type, value)
     approvals && \
       approvals.find { |approval| approval['type'] == type && approval['value'] == value }
+  end
+
+  def color
+    if minus_1ed? || minus_2ed?
+      '#FF0000'
+    elsif code_review_tentatively_approved? || qa_approved? || product_approved?
+      '#00FF00'
+    elsif code_review_approved?
+      '#006600'
+    else
+      '#FFFFFF'
+    end
   end
 end
