@@ -10,6 +10,11 @@ A daemon that sends updates to Slack channels as noteworthy events happen on Ger
   * Merges
   * Failed builds (sent to owner via slackbot DM)
 
+The deamon formats messages according to what happened in Gerrit.
+
+This is how it looks like:
+![Gerrit-slack in action](/../screenshots/gerrit-slack.png?raw=true)
+
 ## Configuration
 
 Sample configuration files are provided in `config`.
@@ -40,11 +45,6 @@ This is where the real fun happens. The structure is as follows:
         - owner3
 
 This configuration would post **all** updates from project1 to channel1, likewise for project2 and channel2. Updates to project3 are only posted to channel2 if the change owner is among those listed.
-
-For channels that hate fun, you can turn celebratory emojis off by setting emoji to false.
-
-    channel1:
-      emoji: false
 
 ### aliases.yml
 
